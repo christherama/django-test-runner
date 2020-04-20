@@ -21,18 +21,30 @@ export function activate(context: vscode.ExtensionContext) {
 
       const editor = vscode.window.activeTextEditor;
       console.log(JSON.stringify(vscode.workspace.workspaceFolders, null, 2));
+
+      const filePath = editor?.document.fileName;
+      if (!filePath) {
+        console.log("No editor open");
+        return;
+      }
       const rootDir = vscode.workspace.rootPath;
+      if (!rootDir) {
+        console.log("No root path");
+        return;
+      }
+      const filePathRelativeToWorkspace = filePath.replace(`${rootDir}/`, "");
+      const module = filePathRelativeToWorkspace
+        .replace(".py", "")
+        .replace(/\//g, ".");
 
       // Display a message box to the user
       vscode.window.showInformationMessage(
-        `current file name is ${editor?.document.fileName}, root dir is ${rootDir}`
+        `current file name is ${editor?.document.fileName}, root dir is ${rootDir}, file path is ${filePathRelativeToWorkspace}, module is ${module}`
       );
 
-      // Run a command in a terminal
+      // Run module tests in terminal
       const terminal = getTerminal();
-      terminal.sendText(
-        "python manage.py test spothero.views.tests.test_ssr_view"
-      );
+      terminal.sendText(`python manage.py test ${module}`);
     }
   );
 
