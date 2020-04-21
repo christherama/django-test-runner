@@ -10,8 +10,8 @@
     "Other"
   ],
   "activationEvents": [
-	"onCommand:django-test-runner.runTests",
-	"onView:django-tests"
+    "onCommand:django-test-runner.runTests",
+    "onView:django-tests"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -22,10 +22,19 @@
       }
     ],
     "views": {
-      "explorer": [
+      "django-test-explorer": [
         {
           "id": "django-tests",
           "name": "Django Tests"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "django-test-explorer",
+          "title": "Django Test Explorer",
+          "icon": "resources/light/dj.svg"
         }
       ]
     }
