@@ -1,6 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
+import { exists } from "fs";
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -23,7 +24,7 @@ export function activate(context: vscode.ExtensionContext) {
       console.log(JSON.stringify(vscode.workspace.workspaceFolders, null, 2));
 
       const filePath = editor?.document.fileName;
-      if (!filePath) {
+      if (!editor || !filePath) {
         console.log("No editor open");
         return;
       }
@@ -37,18 +38,51 @@ export function activate(context: vscode.ExtensionContext) {
         .replace(".py", "")
         .replace(/\//g, ".");
 
-      // Display a message box to the user
-      vscode.window.showInformationMessage(
-        `current file name is ${editor?.document.fileName}, root dir is ${rootDir}, file path is ${filePathRelativeToWorkspace}, module is ${module}`
-      );
+      // Get cursor line number
+      let lineNumber = editor.selection.start.line;
+
+      // Get test class and/or function
+      let testClass = null;
+      let testFunction = null;
+      let n = lineNumber;
+      do {
+        const line = editor.document.lineAt(lineNumber).text;
+        if (!testFunction) {
+          testFunction = getTestFunctionName(line);
+        }
+        testClass = getTestClassName(line);
+        lineNumber--;
+      } while (!testClass && lineNumber >= 0);
+
+      let testModule = module;
+      if (testClass) {
+        testModule =
+          `${module}.${testClass}` + (testFunction ? `.${testFunction}` : "");
+      }
 
       // Run module tests in terminal
       const terminal = getTerminal();
-      terminal.sendText(`python manage.py test ${module}`);
+      terminal.sendText(`python manage.py test ${testModule}`);
     }
   );
 
   context.subscriptions.push(disposable);
+}
+
+function getTestFunctionName(line: string): any {
+  const match = line.match(/^ *def (?<functionName>\w+)\(.*?\):/);
+  if (match && match.groups) {
+    return match.groups.functionName;
+  }
+  return null;
+}
+
+function getTestClassName(line: string): any {
+  const match = line.match(/^ *class (?<className>\w+)\(.*?\)?:/);
+  if (match && match.groups) {
+    return match.groups.className;
+  }
+  return null;
 }
 
 function getTerminal(): vscode.Terminal {
