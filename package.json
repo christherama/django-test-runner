@@ -10,7 +10,8 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:django-test-runner.runTests"
+	"onCommand:django-test-runner.runTests",
+	"onView:django-tests"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -19,7 +20,15 @@
         "command": "django-test-runner.runTests",
         "title": "Django Test Runner: Run Tests"
       }
-    ]
+    ],
+    "views": {
+      "explorer": [
+        {
+          "id": "django-tests",
+          "name": "Django Tests"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
@@ -28,6 +37,10 @@
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "test": "node ./out/test/runTest.js"
+  },
+  "dependencies": {
+    "@types/xml2js": "^0.4.5",
+    "xml2js": "^0.4.23"
   },
   "devDependencies": {
     "@types/vscode": "^1.44.0",

@@ -1,16 +1,21 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
-import { exists } from "fs";
+import { DjangoTestDataProvider } from "./django-test-data-provider";
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-  // Use the console to output diagnostic information (console.log) and errors (console.error)
-  // This line of code will only be executed once when your extension is activated
+  const workspaceRoot = vscode.workspace.rootPath;
   console.log(
-    'Congratulations, your extension "django-test-runner" is now active!'
+	`Registering TreeDataProvider with workspace root ${workspaceRoot}`
   );
+  if (workspaceRoot) {
+    vscode.window.registerTreeDataProvider(
+      "django-tests",
+      new DjangoTestDataProvider(workspaceRoot)
+    );
+  }
 
   // The command has been defined in the package.json file
   // Now provide the implementation of the command with registerCommand
@@ -21,19 +26,20 @@ export function activate(context: vscode.ExtensionContext) {
       // The code you place here will be executed every time your command is executed
 
       const editor = vscode.window.activeTextEditor;
-      console.log(JSON.stringify(vscode.workspace.workspaceFolders, null, 2));
 
       const filePath = editor?.document.fileName;
       if (!editor || !filePath) {
         console.log("No editor open");
         return;
       }
-      const rootDir = vscode.workspace.rootPath;
-      if (!rootDir) {
+      if (!workspaceRoot) {
         console.log("No root path");
         return;
       }
-      const filePathRelativeToWorkspace = filePath.replace(`${rootDir}/`, "");
+      const filePathRelativeToWorkspace = filePath.replace(
+        `${workspaceRoot}/`,
+        ""
+      );
       const module = filePathRelativeToWorkspace
         .replace(".py", "")
         .replace(/\//g, ".");
