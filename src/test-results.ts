@@ -1,9 +1,23 @@
 export class TestSuite {
+  private readonly fqName: string;
+  private readonly className: string | undefined;
+  public readonly name: string;
+
   constructor(
     public readonly id: string,
-    public readonly className: string,
-    public readonly tests: TestCase[]
-  ) {}
+    public testCases: TestCase[] | undefined = undefined
+  ) {
+    this.fqName = id.slice(0, -15);
+    this.className = this.fqName.split(".").pop();
+    this.name = this.className ? this.className : this.fqName;
+  }
+
+  public add(testCase: TestCase): void {
+    if (!this.testCases) {
+      this.testCases = [];
+    }
+    this.testCases.push(testCase);
+  }
 }
 
 export class TestCase {
@@ -11,8 +25,8 @@ export class TestCase {
 
   constructor(
     public readonly testName: string,
-    public readonly failure: TestFailure | undefined,
-    public readonly error: TestError | undefined
+    public readonly failure: TestFailure | undefined = undefined,
+    public readonly error: TestError | undefined = undefined
   ) {
     this.passed = !this.failure && !this.error;
   }
