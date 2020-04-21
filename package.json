@@ -31,6 +31,12 @@
         "title": "Django Test Runner: Run Tests"
       }
     ],
+    "keybindings": {
+      "command": "django-test-runner.runTests",
+      "key": "ctrl+shift+r",
+      "mac": "cmd+shift+r",
+      "when": "editorTextFocus"
+    },
     "views": {
       "django-test-explorer": [
         {

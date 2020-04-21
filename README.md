@@ -4,6 +4,11 @@ This VS Code extension gives quick access to running Django tests by invoking `p
 
 ---
 
+# Setup extension
+
+1. Set `djangoTestRunner.pythonInterpreter` in extension settings
+2. If using pyenv, uncheck `python.terminal.activateEnvironment`
+
 ## TODO: EVERYTHING ELSE IN THIS README
 
 ## Features
