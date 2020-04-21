@@ -21,7 +21,12 @@
         "djangoTestRunner.pythonInterpreter": {
           "type": "string",
           "default": "python",
-          "description": "Path to Python interpreter, e.g. ~/.pyenv/versions/monolith/bin/python"
+          "description": "Path to Python interpreter, e.g. `~/.pyenv/versions/monolith/bin/python`"
+        },
+        "djangoTestRunner.useDefaultShell": {
+          "type": "boolean",
+          "default": true,
+          "description": "Use the default shell. When false, the shell used is `/bin/sh`"
         }
       }
     },

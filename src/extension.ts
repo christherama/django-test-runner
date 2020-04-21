@@ -68,10 +68,11 @@ export function activate(context: vscode.ExtensionContext) {
       }
 
       // Run module tests in terminal
-      const pythonPath = vscode.workspace
-        .getConfiguration("djangoTestRunner")
-        .get("pythonInterpreter");
-      const terminal = getTerminal();
+      const config = vscode.workspace.getConfiguration("djangoTestRunner");
+      const pythonPath = config.get("pythonInterpreter");
+      const defaultShell = config.get("useDefaultShell");
+      const terminal = getTerminal(defaultShell);
+      terminal.show(true);
       terminal.sendText(`${pythonPath} manage.py test ${testModule}`);
     }
   );
@@ -95,12 +96,16 @@ function getTestClassName(line: string): any {
   return null;
 }
 
-function getTerminal(): vscode.Terminal {
+function getTerminal(defaultShell: boolean | any): vscode.Terminal {
   let terminal = vscode.window.terminals.find(
     (terminal) => terminal.name === "django-test-runner"
   );
   if (!terminal) {
-    terminal = vscode.window.createTerminal("django-test-runner");
+    if (defaultShell) {
+      terminal = vscode.window.createTerminal("django-test-runner");
+    } else {
+      terminal = vscode.window.createTerminal("django-test-runner", "/bin/sh");
+    }
   }
   return terminal;
 }
