@@ -8,15 +8,7 @@ import { DjangoTestDataProvider } from "./data-provider";
 export function activate(context: vscode.ExtensionContext) {
   const workspaceRoot = vscode.workspace.rootPath;
 
-  console.info(
-    `Registering TreeDataProvider with workspace root ${workspaceRoot}`
-  );
-  if (workspaceRoot) {
-    vscode.window.registerTreeDataProvider(
-      "django-tests",
-      new DjangoTestDataProvider(workspaceRoot)
-    );
-  }
+  initTreeView(workspaceRoot);
 
   // The command has been defined in the package.json file
   // Now provide the implementation of the command with registerCommand
@@ -108,6 +100,19 @@ function getTerminal(defaultShell: boolean | any): vscode.Terminal {
     }
   }
   return terminal;
+}
+
+function initTreeView(workspaceRoot: any) {
+  const testReportPath = vscode.workspace
+    .getConfiguration("djangoTestRunner")
+    .get("xmlRunnerReportPath");
+
+  if (workspaceRoot && typeof testReportPath === "string") {
+    vscode.window.registerTreeDataProvider(
+      "django-tests",
+      new DjangoTestDataProvider(workspaceRoot, testReportPath)
+    );
+  }
 }
 
 // this method is called when your extension is deactivated

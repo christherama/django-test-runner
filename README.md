@@ -9,6 +9,7 @@ This VS Code extension gives quick access to running Django tests by invoking `p
 1. Set `djangoTestRunner.pythonInterpreter` in extension settings
 2. If using pyenv, uncheck `python.terminal.activateEnvironment`
 3. Uncheck `djangoTestRunner.useDefaultShell` if you want to use `/bin/sh` in place of your system's default shell
+4. If using [XMLRunner](https://github.com/xmlrunner/unittest-xml-reporting) to generate an XML test report, set `djangoTestRunner.xmlRunnerReportPath` to this path, which is relative to the workspace root, e.g. `report.xml`.
 
 ## TODO: EVERYTHING ELSE IN THIS README
 

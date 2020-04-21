@@ -2,12 +2,21 @@ import * as vscode from "vscode";
 import * as path from "path";
 import * as fs from "fs";
 import { parseStringPromise as xmlParseString } from "xml2js";
-
-const TEST_REPORT_FILE_NAME = "nosetests.xml";
+import { TestSuite } from "./test-results";
 
 export class DjangoTestDataProvider
   implements vscode.TreeDataProvider<DjangoTestItem> {
-  constructor(private workspaceRoot: string) {}
+  xml: string | any = null;
+  results: TestSuite[] | any = null;
+
+  constructor(private workspaceRoot: string, private testReportPath: string) {
+    this.fetchTestResults(testReportPath);
+  }
+
+  private async fetchTestResults(testReportPath: string) {
+    const reportContent = fs.readFileSync(testReportPath, "utf-8");
+    this.xml = await xmlParseString(reportContent);
+  }
 
   onDidChangeTreeData?: vscode.Event<any> | undefined;
 
@@ -20,10 +29,7 @@ export class DjangoTestDataProvider
       return Promise.resolve([]);
     } else {
       // root element
-      const testReportPath = path.join(
-        this.workspaceRoot,
-        TEST_REPORT_FILE_NAME
-      );
+      const testReportPath = path.join(this.workspaceRoot, this.testReportPath);
       const testClasses = Promise.resolve(this.getTestClasses(testReportPath));
       console.log(JSON.stringify(testClasses, null, 2));
       return testClasses;
@@ -37,8 +43,19 @@ export class DjangoTestDataProvider
     const xml = await xmlParseString(reportContent);
     return Promise.resolve(
       xml.testsuites.testsuite.map((testsuite: { $: { name: string } }) => {
-        //-20200421040016
-        return new DjangoTestItem(testsuite.$.name.slice(0, -15));
+        // Use testsuite name as id since it includes timestamp
+        const id = testsuite.$.name;
+
+        // Get fully-qualified name by stripping
+        // timestamp from end of testsuite name, e.g. `-20200421040016`
+        const fqName = id.slice(0, -15);
+
+        // Get short class name
+        const className = fqName.split(".").pop();
+
+        // Favor short over fully-qualified name
+        const label = className ? className : fqName;
+        return new DjangoTestItem(id, label);
       })
     );
   }
@@ -46,6 +63,7 @@ export class DjangoTestDataProvider
 
 class DjangoTestItem extends vscode.TreeItem {
   constructor(
+    public readonly id: string,
     public readonly label: string,
     public readonly collapsibleState: vscode.TreeItemCollapsibleState = vscode
       .TreeItemCollapsibleState.Expanded
