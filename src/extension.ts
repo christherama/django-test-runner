@@ -7,8 +7,9 @@ import { DjangoTestDataProvider } from "./django-test-data-provider";
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
   const workspaceRoot = vscode.workspace.rootPath;
-  console.log(
-	`Registering TreeDataProvider with workspace root ${workspaceRoot}`
+
+  console.info(
+    `Registering TreeDataProvider with workspace root ${workspaceRoot}`
   );
   if (workspaceRoot) {
     vscode.window.registerTreeDataProvider(
@@ -67,8 +68,11 @@ export function activate(context: vscode.ExtensionContext) {
       }
 
       // Run module tests in terminal
+      const pythonPath = vscode.workspace
+        .getConfiguration("djangoTestRunner")
+        .get("pythonInterpreter");
       const terminal = getTerminal();
-      terminal.sendText(`python manage.py test ${testModule}`);
+      terminal.sendText(`${pythonPath} manage.py test ${testModule}`);
     }
   );
 

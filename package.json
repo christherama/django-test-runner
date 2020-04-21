@@ -1,6 +1,6 @@
 {
   "name": "django-test-runner",
-  "displayName": "django-test-runner",
+  "displayName": "Django Test Runner",
   "description": "Runs Django tests via manage.py test",
   "version": "0.0.1",
   "engines": {
@@ -15,6 +15,16 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "configuration": {
+      "title": "DjangoTestRunner",
+      "properties": {
+        "djangoTestRunner.pythonInterpreter": {
+          "type": "string",
+          "default": "python",
+          "description": "Path to Python interpreter, e.g. ~/.pyenv/versions/monolith/bin/python"
+        }
+      }
+    },
     "commands": [
       {
         "command": "django-test-runner.runTests",
