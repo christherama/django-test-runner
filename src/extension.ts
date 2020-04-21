@@ -1,7 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
-import { DjangoTestDataProvider } from "./django-test-data-provider";
+import { DjangoTestDataProvider } from "./data-provider";
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -61,9 +61,9 @@ export function activate(context: vscode.ExtensionContext) {
         lineNumber--;
       } while (!testClass && lineNumber >= 0);
 
-      let testModule = module;
+      let testLabel = module;
       if (testClass) {
-        testModule =
+        testLabel =
           `${module}.${testClass}` + (testFunction ? `.${testFunction}` : "");
       }
 
@@ -73,7 +73,7 @@ export function activate(context: vscode.ExtensionContext) {
       const defaultShell = config.get("useDefaultShell");
       const terminal = getTerminal(defaultShell);
       terminal.show(true);
-      terminal.sendText(`${pythonPath} manage.py test ${testModule}`);
+      terminal.sendText(`${pythonPath} manage.py test ${testLabel}`);
     }
   );
 
