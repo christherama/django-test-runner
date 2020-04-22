@@ -64,9 +64,12 @@ export function activate(context: vscode.ExtensionContext) {
       const config = vscode.workspace.getConfiguration("djangoTestRunner");
       const pythonPath = config.get("pythonInterpreter");
       const defaultShell = config.get("useDefaultShell");
+      const testArgs = config.get("testArgs") ?? "";
       const terminal = getTerminal(defaultShell);
       terminal.show(true);
-      terminal.sendText(`${pythonPath} manage.py test ${testLabel}`);
+      terminal.sendText(
+        `${pythonPath} manage.py test ${testLabel} ${testArgs}`
+      );
     }
   );
 
