@@ -8,11 +8,14 @@ export class DjangoTestDataProvider
   testSuites: TestSuite[] = [];
 
   constructor(private workspaceRoot: string, private testReportPath: string) {
-    this.fetchTestResults(testReportPath);
+    this.fetchTestResults();
+    vscode.workspace
+      .createFileSystemWatcher(testReportPath)
+      .onDidChange(() => this.fetchTestResults());
   }
 
-  private async fetchTestResults(testReportPath: string) {
-    const reportContent = fs.readFileSync(testReportPath, "utf-8");
+  private async fetchTestResults() {
+    const reportContent = fs.readFileSync(this.testReportPath, "utf-8");
     const xml = await xmlParseString(reportContent);
     this.testSuites = xml.testsuites.testsuite.map(
       (testsuite: {
@@ -58,7 +61,7 @@ export class DjangoTestDataProvider
   }
 }
 
-class DjangoTestItem extends vscode.TreeItem {
+abstract class DjangoTestItem extends vscode.TreeItem {
   constructor(
     public readonly label: string,
     public readonly testItem: TestSuite | TestCase,
@@ -93,10 +96,6 @@ class TestSuiteTreeItem extends DjangoTestItem {
 
 class TestCaseTreeItem extends DjangoTestItem {
   constructor(testCase: TestCase) {
-    super(testCase.testName, testCase);
-  }
-
-  public getChildren() {
-    return [];
+    super(testCase.testName, testCase, vscode.TreeItemCollapsibleState.None);
   }
 }
