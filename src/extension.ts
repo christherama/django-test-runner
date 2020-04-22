@@ -1,6 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
+import * as path from "path";
 import { DjangoTestDataProvider } from "./data-provider";
 
 // this method is called when your extension is activated
@@ -110,7 +111,10 @@ function initTreeView(workspaceRoot: any) {
   if (workspaceRoot && typeof testReportPath === "string") {
     vscode.window.registerTreeDataProvider(
       "django-tests",
-      new DjangoTestDataProvider(workspaceRoot, testReportPath)
+      new DjangoTestDataProvider(
+        workspaceRoot,
+        path.join(workspaceRoot, testReportPath)
+      )
     );
   }
 }

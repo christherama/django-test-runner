@@ -1,5 +1,4 @@
 import * as vscode from "vscode";
-import * as path from "path";
 import * as fs from "fs";
 import { parseStringPromise as xmlParseString } from "xml2js";
 import { TestSuite, TestCase } from "./test-results";
@@ -16,20 +15,32 @@ export class DjangoTestDataProvider
     const reportContent = fs.readFileSync(testReportPath, "utf-8");
     const xml = await xmlParseString(reportContent);
     this.testSuites = xml.testsuites.testsuite.map(
-      (testsuite: { $: { name: string }; testcase: [{ name: string }] }) => {
+      (testsuite: {
+        $: { name: string };
+        testcase: [{ $: { name: string } }];
+      }) => {
         // Use testsuite name as id since it includes timestamp
         const id = testsuite.$.name;
 
         const testCases = testsuite.testcase.map((testcase) => {
-          return new TestCase(testcase.name);
+          return new TestCase(testcase.$.name);
         });
 
         return new TestSuite(id, testCases);
       }
     );
+    this.refresh();
   }
 
-  onDidChangeTreeData?: vscode.Event<any> | undefined;
+  private _onDidChangeTreeData: vscode.EventEmitter<
+    DjangoTestItem | undefined
+  > = new vscode.EventEmitter<DjangoTestItem | undefined>();
+  readonly onDidChangeTreeData: vscode.Event<DjangoTestItem | undefined> = this
+    ._onDidChangeTreeData.event;
+
+  refresh(): void {
+    this._onDidChangeTreeData.fire();
+  }
 
   getTreeItem(element: DjangoTestItem): vscode.TreeItem {
     return element;
@@ -43,36 +54,8 @@ export class DjangoTestDataProvider
       return this.testSuites.map(
         (testSuite) => new TestSuiteTreeItem(testSuite)
       );
-      // const testReportPath = path.join(this.workspaceRoot, this.testReportPath);
-      // const testClasses = Promise.resolve(this.getTestClasses(testReportPath));
-      // console.log(JSON.stringify(testClasses, null, 2));
-      // return testClasses;
     }
   }
-
-  // private async getTestClasses(
-  //   testReportPath: string
-  // ): Promise<DjangoTestItem[]> {
-  //   const reportContent = fs.readFileSync(testReportPath, "utf-8");
-  //   const xml = await xmlParseString(reportContent);
-  //   return Promise.resolve(
-  //     xml.testsuites.testsuite.map((testsuite: { $: { name: string } }) => {
-  //       // Use testsuite name as id since it includes timestamp
-  //       const id = testsuite.$.name;
-
-  //       // Get fully-qualified name by stripping
-  //       // timestamp from end of testsuite name, e.g. `-20200421040016`
-  //       const fqName = id.slice(0, -15);
-
-  //       // Get short class name
-  //       const className = fqName.split(".").pop();
-
-  //       // Favor short over fully-qualified name
-  //       const label = className ? className : fqName;
-  //       return new DjangoTestItem(id, label);
-  //     })
-  //   );
-  // }
 }
 
 class DjangoTestItem extends vscode.TreeItem {
