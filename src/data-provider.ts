@@ -26,7 +26,7 @@ export class DjangoTestDataProvider
     const xml = await xmlParseString(reportContent);
     this.testSuites = xml.testsuites.testsuite.map(
       (testsuite: {
-        $: { name: string };
+        $: { name: string; errors: string; failures: string };
         testcase: [
           {
             $: { name: string };
@@ -56,7 +56,12 @@ export class DjangoTestDataProvider
           return new TestCase(testcase.$.name, failure, error);
         });
 
-        return new TestSuite(id, testCases);
+        return new TestSuite(
+          id,
+          parseInt(testsuite.$.errors),
+          parseInt(testsuite.$.failures),
+          testCases
+        );
       }
     );
     this.refresh();
@@ -98,6 +103,23 @@ abstract class DjangoTestItem extends vscode.TreeItem {
     super(label, collapsibleState);
   }
 
+  iconPath = {
+    light: path.join(
+      __filename,
+      "..",
+      "..",
+      "resources",
+      `${this.testItem.status()}.svg`
+    ),
+    dark: path.join(
+      __filename,
+      "..",
+      "..",
+      "resources",
+      `${this.testItem.status()}.svg`
+    ),
+  };
+
   public getChildren(): DjangoTestItem[] {
     return [];
   }
@@ -136,21 +158,4 @@ class TestCaseTreeItem extends DjangoTestItem {
         return "";
     }
   }
-
-  iconPath = {
-    light: path.join(
-      __filename,
-      "..",
-      "..",
-      "resources",
-      `${this.testCase.status()}.svg`
-    ),
-    dark: path.join(
-      __filename,
-      "..",
-      "..",
-      "resources",
-      `${this.testCase.status()}.svg`
-    ),
-  };
 }

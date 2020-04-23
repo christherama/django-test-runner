@@ -1,3 +1,9 @@
+export enum Status {
+  PASS = "pass",
+  FAIL = "fail",
+  ERROR = "error",
+}
+
 export class TestSuite {
   private readonly fqName: string;
   private readonly className: string | undefined;
@@ -5,7 +11,9 @@ export class TestSuite {
 
   constructor(
     public readonly id: string,
-    public testCases: TestCase[] | undefined = undefined
+    public readonly errors: number,
+    public readonly failures: number,
+    public testCases: TestCase[]
   ) {
     this.fqName = id.slice(0, -15);
     this.className = this.fqName.split(".").pop();
@@ -18,12 +26,16 @@ export class TestSuite {
     }
     this.testCases.push(testCase);
   }
-}
 
-export enum Status {
-  PASS = "pass",
-  FAIL = "fail",
-  ERROR = "error",
+  public status(): Status {
+    if (this.errors + this.failures === 0) {
+      return Status.PASS;
+    } else if (this.errors === 0 && this.failures > 0) {
+      return Status.FAIL;
+    } else {
+      return Status.ERROR;
+    }
+  }
 }
 
 export class TestCase {
@@ -41,7 +53,7 @@ export class TestCase {
     this.error = error;
   }
 
-  public status(): Status | undefined {
+  public status(): Status {
     if (!this.failure && !this.error) {
       return Status.PASS;
     } else if (this.failure) {
