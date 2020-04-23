@@ -2,7 +2,7 @@
   "name": "django-test-runner",
   "displayName": "Django Test Runner",
   "description": "Runs Django tests via manage.py test",
-  "publisher": "Chris Ramacciotti",
+  "publisher": "christherama",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.44.0"
