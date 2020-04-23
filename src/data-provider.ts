@@ -1,7 +1,14 @@
 import * as vscode from "vscode";
 import * as fs from "fs";
 import { parseStringPromise as xmlParseString } from "xml2js";
-import { TestSuite, TestCase } from "./test-results";
+import {
+  TestSuite,
+  TestCase,
+  TestFailure,
+  TestError,
+  Status,
+} from "./test-results";
+import path = require("path");
 
 export class DjangoTestDataProvider
   implements vscode.TreeDataProvider<DjangoTestItem> {
@@ -20,13 +27,33 @@ export class DjangoTestDataProvider
     this.testSuites = xml.testsuites.testsuite.map(
       (testsuite: {
         $: { name: string };
-        testcase: [{ $: { name: string } }];
+        testcase: [
+          {
+            $: { name: string };
+            failure: [{ $: { message: string; type: string }; _: string }];
+            error: [{ $: { message: string; type: string }; _: string }];
+          }
+        ];
       }) => {
         // Use testsuite name as id since it includes timestamp
         const id = testsuite.$.name;
 
         const testCases = testsuite.testcase.map((testcase) => {
-          return new TestCase(testcase.$.name);
+          const failure = testcase.failure
+            ? new TestFailure(
+                testcase.failure[0].$.message,
+                testcase.failure[0].$.type,
+                testcase.failure[0]._
+              )
+            : undefined;
+          const error = testcase.error
+            ? new TestError(
+                testcase.error[0].$.message,
+                testcase.error[0].$.type,
+                testcase.error[0]._
+              )
+            : undefined;
+          return new TestCase(testcase.$.name, failure, error);
         });
 
         return new TestSuite(id, testCases);
@@ -95,7 +122,35 @@ class TestSuiteTreeItem extends DjangoTestItem {
 }
 
 class TestCaseTreeItem extends DjangoTestItem {
-  constructor(testCase: TestCase) {
+  constructor(private testCase: TestCase) {
     super(testCase.testName, testCase, vscode.TreeItemCollapsibleState.None);
   }
+
+  get tooltip(): string {
+    switch (this.testCase.status()) {
+      case Status.FAIL:
+        return this.testCase.failure?.traceback ?? "";
+      case Status.ERROR:
+        return this.testCase.error?.traceback ?? "";
+      default:
+        return "";
+    }
+  }
+
+  iconPath = {
+    light: path.join(
+      __filename,
+      "..",
+      "..",
+      "resources",
+      `${this.testCase.status()}.svg`
+    ),
+    dark: path.join(
+      __filename,
+      "..",
+      "..",
+      "resources",
+      `${this.testCase.status()}.svg`
+    ),
+  };
 }

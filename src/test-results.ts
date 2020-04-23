@@ -20,15 +20,35 @@ export class TestSuite {
   }
 }
 
+export enum Status {
+  PASS = "pass",
+  FAIL = "fail",
+  ERROR = "error",
+}
+
 export class TestCase {
-  passed: boolean;
+  public readonly testName: string;
+  public readonly failure: TestFailure | undefined;
+  public readonly error: TestError | undefined;
 
   constructor(
-    public readonly testName: string,
-    public readonly failure: TestFailure | undefined = undefined,
-    public readonly error: TestError | undefined = undefined
+    testName: string,
+    failure: TestFailure | undefined,
+    error: TestError | undefined
   ) {
-    this.passed = !this.failure && !this.error;
+    this.testName = testName;
+    this.failure = failure;
+    this.error = error;
+  }
+
+  public status(): Status | undefined {
+    if (!this.failure && !this.error) {
+      return Status.PASS;
+    } else if (this.failure) {
+      return Status.FAIL;
+    } else {
+      return Status.ERROR;
+    }
   }
 }
 
@@ -36,7 +56,7 @@ export class TestFailure {
   constructor(
     public readonly message: string,
     public readonly type: string,
-    public readonly traceback: string
+    public readonly traceback: string | undefined = undefined
   ) {}
 }
 
@@ -44,6 +64,6 @@ export class TestError {
   constructor(
     public readonly message: string,
     public readonly type: string,
-    public readonly traceback: string
+    public readonly traceback: string | undefined = undefined
   ) {}
 }
