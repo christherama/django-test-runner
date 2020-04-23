@@ -66,7 +66,7 @@
         {
           "id": "django-test-explorer",
           "title": "Django Test Explorer",
-          "icon": "resources/light/dj.svg"
+          "icon": "resources/dj.svg"
         }
       ]
     }
