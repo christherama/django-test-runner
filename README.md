@@ -51,6 +51,14 @@ This extension contributes the following settings:
 
 ## Release Notes
 
+### 0.1.0
+
+This release includes only documentation changes:
+
+- Animated feature gif
+- Usage notes
+- Known issues
+
 ### 0.0.1
 
 Initial release
