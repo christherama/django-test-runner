@@ -22,7 +22,14 @@ If you are using [XMLRunner](https://github.com/xmlrunner/unittest-xml-reporting
 
 ## Features
 
-TODO
+Run Django Tests with a VS Code action or keybinding (defaults to CMD+SHIFT+R for MacOS and CTRL+SHIFT+R for Windows):
+![run django tests demo](./images/run-tests.gif)
+
+**Notes**
+
+- A test file must be open to invoke a Django test run
+- Tests to run are determined by the first function or class definition found on or before the cursor position
+- If no class or function definition is found, the entire module will be run
 
 ## Requirements
 
@@ -39,11 +46,10 @@ This extension contributes the following settings:
 
 ## Known Issues
 
-This extension has been tested only on MacOS.
+- This extension has been tested only on MacOS.
+- Running Django tests will run a non-test function (e.g. `setUp`) if the first function found on or before the cursor position is not a test function, and a class definition isn't found first
 
 ## Release Notes
-
-Users appreciate release notes as you update your extension.
 
 ### 0.0.1
 
